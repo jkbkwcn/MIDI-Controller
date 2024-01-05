@@ -5,9 +5,50 @@
 #include "bsp/board.h"
 #include "tusb.h"
 #include "hardware/adc.h"
+#include "hardware/timer.h"
 
 #define ROW_COUNT 4
 #define COL_COUNT 3
+#define SIZE_OF_BUFFER 10
+#define MIDI_CHANNEL 0
+#define SUCCESS 1
+#define FAILURE 0
+
+bool led_state = false;
+
+struct Buffer  {
+    uint16_t data[SIZE_OF_BUFFER];
+    uint8_t read;
+    uint8_t write;
+    int length;
+} buffer = {{ }, 0, 0, 0};
+
+
+bool BufferIn(uint16_t data) {
+    if (buffer.length == SIZE_OF_BUFFER)
+    {
+        return FAILURE;
+    }
+
+    buffer.data[buffer.write] = data;
+    buffer.write = (buffer.write + 1) % SIZE_OF_BUFFER;
+    buffer.length++;
+
+    return SUCCESS;
+}
+
+bool BufferOut(uint16_t *data) {
+    if (buffer.length == 0)
+    {
+        return FAILURE;
+    }
+
+    *data = buffer.data[buffer.read];
+    buffer.read = (buffer.read + 1) % SIZE_OF_BUFFER;
+    buffer.length--;
+
+    return SUCCESS;
+}
 
 const float conversion_factor = 3.3f / (1<<12);
 
@@ -20,7 +61,6 @@ char matrixKeys[ROW_COUNT][COL_COUNT] = {{'1', '2', '3'},
                                          {'4', '5', '6'},
                                          {'7', '8', '9'},
                                          {'*', '0', '#'}};
-
 bool stateMatrix[ROW_COUNT][COL_COUNT] = {{0, 0, 0},
                                           {0, 0, 0},
                                           {0, 0, 0},
@@ -29,10 +69,9 @@ bool stateMatrix[ROW_COUNT][COL_COUNT] = {{0, 0, 0},
 uint8_t pitchMatrix[ROW_COUNT][COL_COUNT] = {{0x60, 0x62, 0x64},
                                              {0x65, 0x67, 0x69},
                                              {0x6B, 0x6C, 0x6E},
-                                             {0x70, 0x71, 0x73}};     
+                                             {0x70, 0x71, 0x73}};
 
-int map(float x)
-{
+int map(float x) {
     return (int)((x - 0) * (127 - 0) / (3.3 - 0) + 0);
 }
 
@@ -50,7 +89,10 @@ void init_keypad() {
     }  
 }
 
-void scan_keys() {
+bool scan_keys(struct repeating_timer *t) {
+
+    board_led_write(led_state);
+    led_state = !led_state;
 
     uint8_t msg[3];
 
@@ -63,38 +105,43 @@ void scan_keys() {
             if (gpio_get(colPins[j]) == 1 && stateMatrix[i][j] == 0)
             {
                 stateMatrix[i][j] = 1;
-                printf("Key pressed: %c\n", matrixKeys[i][j]);
+                // printf("Key pressed: %c\n", matrixKeys[i][j]);
 
-                msg[0] = 0x90;
-                msg[1] = pitchMatrix[i][j] - 0x24;
-                msg[2] = 80;
-                tud_midi_n_stream_write(0, 0, msg, 3);
+                BufferIn((pitchMatrix[i][j] - 24) << 8 | 80);
 
-                sleep_ms(50);
+                // msg[0] = 0x90;
+                // msg[1] = pitchMatrix[i][j];
+                // msg[2] = 80;
+                // tud_midi_n_stream_write(0, 0, msg, 3);
+
+                // sleep_ms(50);
             }
             
             if (gpio_get(colPins[j]) == 0 && stateMatrix[i][j] == 1)
             {
                 stateMatrix[i][j] = 0;
-                printf("Key released: %c\n", matrixKeys[i][j]);
+                // printf("Key released: %c\n", matrixKeys[i][j]);
 
-                    msg[0] = 0x80;
-                    msg[1] = pitchMatrix[i][j] - 0x24;
-                    msg[2] = 0;
-                    tud_midi_n_stream_write(0, 0, msg, 3);
+                BufferIn((pitchMatrix[i][j] - 24) << 8 | 0);
 
-                sleep_ms(50);
+                // msg[0] = 0x80;
+                // msg[1] = pitchMatrix[i][j] - 0x24;
+                // msg[2] = 0;
+                // tud_midi_n_stream_write(0, 0, msg, 3);
+
+                // sleep_ms(50);
             } 
 
         }
 
         gpio_put(rowPins[i], 0);
     }
+
+    return true;
     
 }
 
-void scan_adc()
-{
+void scan_adc() {
     uint8_t msg[3];
 
      u_int16_t result = 0;
@@ -132,14 +179,40 @@ int main() {
 
     init_keypad();
 
-    adc_init();
-    adc_gpio_init(26);
-    adc_select_input(0);
+    struct repeating_timer timer;
+    add_repeating_timer_ms(10, scan_keys, NULL, &timer);
+
+    // adc_init();
+    // adc_gpio_init(26);
+    // adc_select_input(0);
 
     while (true)
     {
+        
+        // scan_keys();
+
+        uint16_t data;
+
+        while ( BufferOut(&data) == SUCCESS)
+        {
+            uint8_t msg[3];
+
+            if (data & 0xFF == 0)
+            {
+                msg[0] = 0x80;
+                msg[1] = data >> 8;
+                msg[2] = 0;
+            }
+            else
+            {
+                msg[0] = 0x90;
+                msg[1] = data >> 8;
+                msg[2] = data & 0xFF;
+            }
+            
+            tud_midi_n_stream_write(0, 0, msg, 3);
+        }
+        // scan_adc();
         tud_task();
-        scan_keys();
-        scan_adc();
     }
 }

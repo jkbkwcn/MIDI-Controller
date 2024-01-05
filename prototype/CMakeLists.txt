@@ -26,6 +26,7 @@ if (TARGET tinyusb_device)
         tinyusb_device
         tinyusb_board
         hardware_adc
+        hardware_timer
         )
 
     # enable usb output, disable uart output

@@ -9,50 +9,69 @@
 
 #define ROW_COUNT 4
 #define COL_COUNT 3
+
 #define SIZE_OF_BUFFER 10
-#define MIDI_CHANNEL 0
 #define SUCCESS 1
 #define FAILURE 0
 
-bool led_state = false;
+#define MIDI_CHANNEL 1
+#define MIDI_CABLE 0
 
-struct Buffer  {
-    uint16_t data[SIZE_OF_BUFFER];
+#define MOVING_AVG_SIZE 10
+
+uint16_t adc_values[MOVING_AVG_SIZE] = {0};
+uint8_t adc_values_index = 0;
+
+int map(float x, int in_min, int in_max, int out_min, int out_max) {
+    return (int)((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
+}
+
+typedef struct {
+    uint8_t status;
+    uint8_t data1;
+    uint8_t data2;
+} midi_packet;
+
+typedef struct {
+    midi_packet data[SIZE_OF_BUFFER];
     uint8_t read;
     uint8_t write;
     int length;
-} buffer = {{ }, 0, 0, 0};
+} buffer;
 
+buffer Buffer = {{}, 0, 0, 0};
 
-bool BufferIn(uint16_t data) {
-    if (buffer.length == SIZE_OF_BUFFER)
-    {
+bool bufferIn(midi_packet packet) {
+    if (Buffer.length == SIZE_OF_BUFFER) {
         return FAILURE;
     }
 
-    buffer.data[buffer.write] = data;
-    buffer.write = (buffer.write + 1) % SIZE_OF_BUFFER;
-    buffer.length++;
+    Buffer.data[Buffer.write] = packet;
+    Buffer.write = (Buffer.write + 1) % SIZE_OF_BUFFER;
+    Buffer.length++;
 
     return SUCCESS;
 }
 
-bool BufferOut(uint16_t *data) {
-    if (buffer.length == 0)
-    {
+bool bufferOut(midi_packet *packet) {
+    if (Buffer.length == 0) {
         return FAILURE;
     }
 
-    *data = buffer.data[buffer.read];
-    buffer.read = (buffer.read + 1) % SIZE_OF_BUFFER;
-    buffer.length--;
+    *packet = Buffer.data[Buffer.read];
+    Buffer.read = (Buffer.read + 1) % SIZE_OF_BUFFER;
+    Buffer.length--;
 
     return SUCCESS;
 }
 
-const float conversion_factor = 3.3f / (1<<12);
+bool led_state = false;
 
-uint8_t pot_val = 0;
+int octave = 0;
+
+const float conversion_factor = 3.3f / (1 << 12);
+
+uint8_t last_pot_val = 0;
 
 int rowPins[ROW_COUNT] = {2, 3, 4, 5};
 int colPins[COL_COUNT] = {6, 7, 8};
@@ -61,32 +80,31 @@ char matrixKeys[ROW_COUNT][COL_COUNT] = {{'1', '2', '3'},
                                          {'4', '5', '6'},
                                          {'7', '8', '9'},
                                          {'*', '0', '#'}};
+
 bool stateMatrix[ROW_COUNT][COL_COUNT] = {{0, 0, 0},
                                           {0, 0, 0},
                                           {0, 0, 0},
                                           {0, 0, 0}};
 
-uint8_t pitchMatrix[ROW_COUNT][COL_COUNT] = {{0x60, 0x62, 0x64},
-                                             {0x65, 0x67, 0x69},
-                                             {0x6B, 0x6C, 0x6E},
-                                             {0x70, 0x71, 0x73}};
+uint8_t pitchMatrix[ROW_COUNT][COL_COUNT] = {{48, 50, 52},
+                                             {53, 55, 57},
+                                             {59, 60, 62},
+                                             {64, 65, 67}};
 
-int map(float x) {
-    return (int)((x - 0) * (127 - 0) / (3.3 - 0) + 0);
-}
 
-void init_keypad() {
-    for (uint i = 0; i < ROW_COUNT; i++)
-    {
-        gpio_init(rowPins[i]);
-        gpio_set_dir(rowPins[i], GPIO_OUT);
+void init() {
+    for (uint r = 0; r < ROW_COUNT; r++) {
+        gpio_init(rowPins[r]);
+        gpio_set_dir(rowPins[r], GPIO_OUT);
     }
 
-    for (uint i = 0; i < COL_COUNT; i++)
-    {
-        gpio_init(colPins[i]);
-        gpio_set_dir(colPins[i], GPIO_IN);
+    for (uint r = 0; r < COL_COUNT; r++) {
+        gpio_init(colPins[r]);
+        gpio_set_dir(colPins[r], GPIO_IN);
     }  
+
+    adc_init();
+    adc_gpio_init(26);
 }
 
 bool scan_keys(struct repeating_timer *t) {
@@ -96,79 +114,71 @@ bool scan_keys(struct repeating_timer *t) {
 
     uint8_t msg[3];
 
-    for (uint i = 0; i < ROW_COUNT; i++)
+    for (uint r = 0; r < ROW_COUNT; r++)
     {
-        gpio_put(rowPins[i], 1);
+        gpio_put(rowPins[r], 1);
 
-        for (uint j = 0; j < COL_COUNT; j++)
+        for (uint c = 0; c < COL_COUNT; c++)
         {  
-            if (gpio_get(colPins[j]) == 1 && stateMatrix[i][j] == 0)
-            {
-                stateMatrix[i][j] = 1;
-                // printf("Key pressed: %c\n", matrixKeys[i][j]);
 
-                BufferIn((pitchMatrix[i][j] - 24) << 8 | 80);
+            if (gpio_get(colPins[c]) == 1 && stateMatrix[r][c] == 0)
+            {   
 
-                // msg[0] = 0x90;
-                // msg[1] = pitchMatrix[i][j];
-                // msg[2] = 80;
-                // tud_midi_n_stream_write(0, 0, msg, 3);
+                stateMatrix[r][c] = 1;
 
-                // sleep_ms(50);
+                if (matrixKeys[r][c] == '*')
+                {
+                    octave--;
+                }
+                else if (matrixKeys[r][c] == '#')
+                {
+                    octave++;
+                }
+                else
+                {
+                    midi_packet note_on = {0x90 | MIDI_CHANNEL, pitchMatrix[r][c] + (octave * 12), 80};
+
+                    bufferIn(note_on);
+                }
             }
             
-            if (gpio_get(colPins[j]) == 0 && stateMatrix[i][j] == 1)
+            if (gpio_get(colPins[c]) == 0 && stateMatrix[r][c] == 1)
             {
-                stateMatrix[i][j] = 0;
-                // printf("Key released: %c\n", matrixKeys[i][j]);
+                stateMatrix[r][c] = 0;
 
-                BufferIn((pitchMatrix[i][j] - 24) << 8 | 0);
+                midi_packet note_off = {0x80 | MIDI_CHANNEL, pitchMatrix[r][c] + (octave * 12), 0};
 
-                // msg[0] = 0x80;
-                // msg[1] = pitchMatrix[i][j] - 0x24;
-                // msg[2] = 0;
-                // tud_midi_n_stream_write(0, 0, msg, 3);
-
-                // sleep_ms(50);
+                bufferIn(note_off);
             } 
 
         }
 
-        gpio_put(rowPins[i], 0);
+        gpio_put(rowPins[r], 0);
     }
+
+    adc_values[adc_values_index] = adc_read();
+    adc_values_index = (adc_values_index + 1) % MOVING_AVG_SIZE;
+
+    uint32_t adc_sum = 0;
+    for (uint8_t i = 0; i < MOVING_AVG_SIZE; i++)
+    {
+        adc_sum += adc_values[i];
+    }
+
+    uint8_t pot_val = map(adc_sum / MOVING_AVG_SIZE, 0, 4095, 0, 127);
+
+    if (pot_val != last_pot_val)
+    {
+        last_pot_val = pot_val;
+
+        midi_packet msg = {0xB0 | MIDI_CHANNEL, 0x01, pot_val};
+
+        bufferIn(msg);
+    }
+    
 
     return true;
     
-}
-
-void scan_adc() {
-    uint8_t msg[3];
-
-     u_int16_t result = 0;
-
-    for (int i = 0; i < 10; i++)
-    {
-        result += adc_read();
-    }
-
-    result = result/10;
-    
-   
-    result = map(result * conversion_factor);
-
-    if (pot_val == result)
-    {
-        return;
-    }
-    
-
-    pot_val = result;
-
-    msg[0] = 0xB0;
-    msg[1] = 0x07;
-    msg[2] = result;
-    tud_midi_n_stream_write(0, 0, msg, 3);
-
 }
 
 int main() {
@@ -177,42 +187,21 @@ int main() {
 
     tusb_init();
 
-    init_keypad();
+    init();
 
     struct repeating_timer timer;
     add_repeating_timer_ms(10, scan_keys, NULL, &timer);
 
-    // adc_init();
-    // adc_gpio_init(26);
-    // adc_select_input(0);
-
     while (true)
     {
-        
-        // scan_keys();
-
-        uint16_t data;
-
-        while ( BufferOut(&data) == SUCCESS)
-        {
-            uint8_t msg[3];
-
-            if (data & 0xFF == 0)
-            {
-                msg[0] = 0x80;
-                msg[1] = data >> 8;
-                msg[2] = 0;
-            }
-            else
-            {
-                msg[0] = 0x90;
-                msg[1] = data >> 8;
-                msg[2] = data & 0xFF;
-            }
-            
-            tud_midi_n_stream_write(0, 0, msg, 3);
-        }
-        // scan_adc();
         tud_task();
+
+        midi_packet received_packet;
+
+        while ( bufferOut(&received_packet) == SUCCESS)
+        {
+            uint8_t received_packet_bytes[3] = {received_packet.status, received_packet.data1, received_packet.data2};
+            tud_midi_stream_write(MIDI_CABLE, received_packet_bytes, 3);
+        }
     }
 }

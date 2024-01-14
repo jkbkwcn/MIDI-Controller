@@ -17,10 +17,24 @@ if (TARGET tinyusb_device)
                 menu.c
                 encoder.c
                 OLED_I2C.c
+                adc.c
+                buffer.c
+                keypad.c
+                midi.c
+                usb_descriptors.c
                 )
 
+        target_include_directories(OLED_SH1106_I2C PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+
         # pull in common dependencies and additional i2c hardware support
-        target_link_libraries(OLED_SH1106_I2C pico_stdlib hardware_i2c)
+        target_link_libraries(OLED_SH1106_I2C
+                pico_stdlib     
+                tinyusb_device
+                tinyusb_board
+                hardware_i2c
+                hardware_adc
+                hardware_timer
+                )
 
         # enable usb output, disable uart output
         pico_enable_stdio_usb(OLED_SH1106_I2C 1)

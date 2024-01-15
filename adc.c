@@ -9,13 +9,19 @@ uint16_t adc_values[MOVING_AVG_SIZE] = {0};
 
 uint8_t adc_values_index = 0;
 
-int map(int x, int in_min, int in_max, int out_min, int out_max) {
-    return (int)((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
+int map(float x, float in_min, float in_max, float out_min, float out_max) {
+
+    float result_f  = (x  - in_min) * (out_max  - out_min) / (in_max  - in_min) + out_min;
+
+    int result = (int)(result_f  + 0.5);
+
+    return result;
 }
 
 void init_adc() {
     adc_init();
     adc_gpio_init(ADC_PIN);
+    adc_select_input(0);
 }
 
 void scan_adc() {

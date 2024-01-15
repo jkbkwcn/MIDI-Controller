@@ -22,8 +22,6 @@ Param drumpdChannel2 = {1, 1, 16};
 
 Param* drumpdChannels[2] = {&drumpdChannel1, &drumpdChannel2};
 
-
-
 Param potCC = {7, 0, 127};
 Param potChannel = {1, 1, 16};
 

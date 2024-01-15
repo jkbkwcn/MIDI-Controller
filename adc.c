@@ -3,8 +3,6 @@
 #include "buffer.h"
 #include "hardware/adc.h"
 
-const float conversion_factor = 3.3f / (1 << 12);
-
 uint8_t last_pot_val = 0;
 
 uint16_t adc_values[MOVING_AVG_SIZE] = {0};
@@ -17,7 +15,7 @@ int map(int x, int in_min, int in_max, int out_min, int out_max) {
 
 void init_adc() {
     adc_init();
-    adc_gpio_init(26);
+    adc_gpio_init(ADC_PIN);
 }
 
 void scan_adc() {
@@ -36,7 +34,7 @@ void scan_adc() {
     {
         last_pot_val = pot_val;
 
-        midi_packet msg = {0xB0 | potChannel.value - 1, potCC.value, pot_val};
+        midi_packet msg = {MIDI_CC | potChannel.value - 1, potCC.value, pot_val};
 
         bufferIn(msg);
     }

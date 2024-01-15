@@ -1,8 +1,11 @@
 #pragma once
 
 #include <stdint.h>
-
 #define MIDI_CABLE 0
+
+#define MIDI_NOTE_ON 0x90
+#define MIDI_NOTE_OFF 0x80
+#define MIDI_CC 0xB0
 
 typedef struct Param Param;
 
@@ -31,8 +34,6 @@ extern Param drumpdChannel1;
 extern Param drumpdChannel2;
 
 extern Param* drumpdChannels[2];
-
-
 
 extern Param potCC;
 extern Param potChannel;

@@ -1,5 +1,4 @@
-#ifndef BUFFER_H
-#define BUFFER_H
+#pragma once
 
 #include "midi.h"
 #include <stdbool.h>
@@ -18,5 +17,3 @@ typedef struct {
 
 bool bufferIn(midi_packet packet);
 bool bufferOut(midi_packet *packet);
-
-#endif /* BUFFER_H */

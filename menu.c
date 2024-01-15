@@ -255,7 +255,7 @@ void ChangeActivePage(void) {
 void ChangeParamValue(bool down) {
 
     if (down) {
-        if (active_page->page.pPage.params[active_page->page.pPage.selected]->value > active_page->page.pPage.params                [active_page->page.pPage.selected]->minValue) {
+        if (active_page->page.pPage.params[active_page->page.pPage.selected]->value > active_page->page.pPage.params[active_page->page.pPage.selected]->minValue) {
             active_page->page.pPage.params[active_page->page.pPage.selected]->value--;
         }
     }

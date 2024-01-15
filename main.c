@@ -62,7 +62,7 @@ int main() {
     gpio_set_irq_enabled_with_callback(ENCODER_PIN_A, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
 
     struct repeating_timer timer;
-    add_repeating_timer_ms(10, scan_keys, NULL, &timer);
+    add_repeating_timer_ms(5, scan_keys, NULL, &timer);
 
     while(true) {
         tud_task();

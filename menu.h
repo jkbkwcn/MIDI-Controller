@@ -58,7 +58,7 @@ extern Page MAIN_PAGE;
 
 void EnterPressed(void);
 void EncoderSignal(bool down);
-void ChangeSelected(bool down);
+void ChangeSelectedPage(bool down);
 void ChangeActivePage(void);
 void ChangeParamValue(bool down);
 void EnterParam(void);

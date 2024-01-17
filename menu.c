@@ -27,7 +27,7 @@ Page MAIN_PAGE = {
 		"               ",
 		" Keys          ",
 		" Drumpads      ",
-		" Pots control  "
+		" Pots          "
         },
         .first_opt = 2,
         .last_opt = 4,
@@ -103,8 +103,8 @@ Page DRUMS_PAGE = {
         .lines = {
         "    DRUMPADS   ",
         "               ",
-        " Map notes     ",    
-        " Set velocity  ",
+        " Notes         ",    
+        " Velocity      ",
         " MIDI Channel  ",
         " Back          ",
         },
@@ -166,7 +166,7 @@ Page POTS_PAGE = {
         .lines = {
         "     POTS      ",
         "               ",
-        " Set MIDI CC   ",    
+        " MIDI CC       ",    
         " MIDI Channel  ",
         " Back          ",
         },
@@ -215,24 +215,24 @@ void EnterPressed(void) {
 void EncoderSignal(bool down) {
 
     if (active_page->pageType == MENU_PAGE)
-        ChangeSelected(down);
+        ChangeSelectedPage(down);
 
     else
         ChangeParamValue(down);
 
 }
 
-void ChangeSelected(bool down) {
+void ChangeSelectedPage(bool down) {
     if(down) {
         if (active_page->page.mPage.selected == active_page->page.mPage.first_opt)
-            active_page->page.mPage.selected = active_page->page.mPage.last_opt;
+            active_page->page.mPage.selected = active_page->page.mPage.first_opt;
         else
             active_page->page.mPage.selected--;
     }
 
     else {
         if (active_page->page.mPage.selected == active_page->page.mPage.last_opt)
-            active_page->page.mPage.selected = active_page->page.mPage.first_opt;
+            active_page->page.mPage.selected = active_page->page.mPage.last_opt;
         else
             active_page->page.mPage.selected++;
     }

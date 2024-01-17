@@ -2,7 +2,7 @@
 #include "buffer.h"
 #include "tusb.h"
 
-Param octave = {4, 0, 9};
+Param octave = {3, 0, 9};
 Param keysVelocityOn = {1, 0, 1};
 Param keysVelocity = {127, 0, 127};
 Param keysChannel = {1, 1, 16};

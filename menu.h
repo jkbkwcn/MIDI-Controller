@@ -56,8 +56,8 @@ extern Page MAIN_PAGE;
 		extern Page POTS_MIDICC_PAGE;
 		extern Page POTS_CHANNEL_PAGE;
 
-void EnterPressed(void);
-void EncoderSignal(bool down);
+void SwitchPressed(void);
+void EncoderMoved(bool down);
 void ChangeSelectedPage(bool down);
 void ChangeActivePage(void);
 void ChangeParamValue(bool down);

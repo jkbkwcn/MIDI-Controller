@@ -205,14 +205,14 @@ Page POTS_CHANNEL_PAGE = {
     }
 };
 
-void EnterPressed(void) {
+void SwitchPressed(void) {
     if (active_page->pageType == MENU_PAGE)
         ChangeActivePage();
     else
         EnterParam();
 }
 
-void EncoderSignal(bool down) {
+void EncoderMoved(bool down) {
 
     if (active_page->pageType == MENU_PAGE)
         ChangeSelectedPage(down);

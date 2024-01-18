@@ -32,10 +32,10 @@ bool scan_keys(struct repeating_timer *t) {
 void gpio_callback(uint gpio, uint32_t events) {
     
     if (gpio == SW_PIN)
-        EnterPressed();
+        SwitchPressed();
 
     else
-        EncoderSignal(gpio_get(ENCODER_PIN_B) == 0); 
+        EncoderMoved(gpio_get(ENCODER_PIN_B) == 0); 
 }
 
 int main() {

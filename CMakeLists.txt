@@ -43,6 +43,8 @@ if (TARGET tinyusb_device)
         # create map/bin/hex file etc.
         pico_add_extra_outputs(OLED_SH1106_I2C)
 
+        string(APPEND CMAKE_EXE_LINKER_FLAGS "-Wl,--print-memory-usage")
+
 elseif(PICO_ON_DEVICE)
         message(WARNING "not building hello_usb because TinyUSB submodule is not initialized in the SDK")
 endif()

@@ -9,11 +9,9 @@ uint16_t adc_values[MOVING_AVG_SIZE] = {0};
 
 uint8_t adc_values_index = 0;
 
-int map(float x, float in_min, float in_max, float out_min, float out_max) {
+int map(int x) {
 
-    float result_f  = (x  - in_min) * (out_max  - out_min) / (in_max  - in_min) + out_min;
-
-    int result = (int)(result_f  + 0.5);
+    int result = x / 32;
 
     return result;
 }
@@ -22,10 +20,13 @@ void init_adc() {
     adc_init();
     adc_gpio_init(ADC_PIN);
     adc_select_input(0);
-}
-
+    }
+    
 void scan_adc() {
-    adc_values[adc_values_index] = adc_read();
+
+    uint8_t pot_val = map(adc_read());
+
+    adc_values[adc_values_index] = pot_val;
     adc_values_index = (adc_values_index + 1) % MOVING_AVG_SIZE;
 
     uint32_t adc_sum = 0;
@@ -34,7 +35,7 @@ void scan_adc() {
         adc_sum += adc_values[i];
     }
 
-    uint8_t pot_val = map(adc_sum / MOVING_AVG_SIZE, 0, 4095, 0, 127);
+    pot_val = adc_sum / MOVING_AVG_SIZE;
 
     if (pot_val != last_pot_val)
     {

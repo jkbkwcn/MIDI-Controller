@@ -15,9 +15,14 @@
 #include "buffer.h"
 #include "adc.h"
 
-bool led_state = false;
 
-bool scan_keys(struct repeating_timer *t) {
+
+volatile bool led_state = false;
+volatile bool sw_flag = false;
+volatile bool en_flag = false;
+volatile bool en_direction;
+
+bool timer_callback(struct repeating_timer *t) {
 
     board_led_write(led_state);
     led_state = !led_state;
@@ -26,16 +31,27 @@ bool scan_keys(struct repeating_timer *t) {
     scan_adc();
 
     return true;
-    
 }
+
 
 void gpio_callback(uint gpio, uint32_t events) {
     
     if (gpio == SW_PIN)
-        SwitchPressed();
-
+        sw_flag = true;
+        
     else
-        EncoderMoved(gpio_get(ENCODER_PIN_B) == 0); 
+        en_flag = true;
+        en_direction = gpio_get(ENCODER_PIN_B) == 0;
+}
+
+void sw_task() {
+    sw_flag = false;
+    SwitchPressed();
+}
+
+void en_task() {
+    en_flag = false;
+    EncoderMoved(en_direction);
 }
 
 int main() {
@@ -62,10 +78,15 @@ int main() {
     gpio_set_irq_enabled_with_callback(ENCODER_PIN_A, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
 
     struct repeating_timer timer;
-    add_repeating_timer_ms(5, scan_keys, NULL, &timer);
+    add_repeating_timer_ms(2, timer_callback, NULL, &timer);
 
     while(true) {
         tud_task();
+
+        if (sw_flag) sw_task();
+
+        if (en_flag) en_task();
+        
         midi_task();
     }
 }

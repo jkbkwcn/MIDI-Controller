@@ -7,36 +7,35 @@ const uint8_t basePitchMatrix[ROW_COUNT][COL_COUNT] = {{35, 34, 33, 0},
                                                    {29, 28, 27, 0},
                                                    {26, 25, 24, 0}};
 
-Param keysOctave = {3, 0, 9};
-Param keysOffset = {0, 0, 11};
-Param keysVelocityOn = {1, 0, 1};
-Param keysVelocity = {127, 0, 127};
-Param keysChannel = {1, 1, 16};
+param KeysOctave = {3, 0, 9};
+param KeysOffset = {0, 0, 11};
+param KeysVelocity = {127, 0, 127};
+param KeysChannel = {1, 1, 16};
 
-Param drumpdNote1 = {64, 0, 127};
-Param drumpdNote2 = {66, 0, 127};
+param DrumpdNote1 = {64, 0, 127};
+param DrumpdNote2 = {66, 0, 127};
 
-Param* drumpdNotes[2] = {&drumpdNote1, &drumpdNote2};
+param* drumpdNotes[2] = {&DrumpdNote1, &DrumpdNote2};
 
-Param drumpdVelocity1 = {127, 0, 127};
-Param drumpdVelocity2 = {127, 0, 127};
+param DrumpdVelocity1 = {127, 0, 127};
+param DrumpdVelocity2 = {127, 0, 127};
 
-Param* drumpdVelocities[2] = {&drumpdVelocity1, &drumpdVelocity2};
+param* drumpdVelocities[2] = {&DrumpdVelocity1, &DrumpdVelocity2};
 
-Param drumpdChannel1 = {1, 1, 16};
-Param drumpdChannel2 = {1, 1, 16};
+param DrumpdChannel1 = {1, 1, 16};
+param DrumpdChannel2 = {1, 1, 16};
 
-Param* drumpdChannels[2] = {&drumpdChannel1, &drumpdChannel2};
+param* drumpdChannels[2] = {&DrumpdChannel1, &DrumpdChannel2};
 
-Param potCC = {7, 0, 127};
-Param potChannel = {1, 1, 16};
+param PotCC = {7, 0, 127};
+param PotChannel = {1, 1, 16};
 
-void midi_task() {
-    midi_packet received_packet;
+void midi_task(void) {
+    midi_packet ReceivedPacket;
 
-    while ( bufferOut(&received_packet) == SUCCESS)
+    while (buffer_out(&ReceivedPacket) == SUCCESS)
     {
-        uint8_t received_packet_bytes[3] = {received_packet.status, received_packet.data1, received_packet.data2};
-        tud_midi_stream_write(MIDI_CABLE, received_packet_bytes, 3);
+        uint8_t ReceivedPacketBytes[3] = {ReceivedPacket.status, ReceivedPacket.data1, ReceivedPacket.data2};
+        tud_midi_stream_write(MIDI_CABLE, ReceivedPacketBytes, 3);
     }
 }

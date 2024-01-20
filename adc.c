@@ -1,13 +1,14 @@
 #include "adc.h"
+
 #include "midi.h"
 #include "buffer.h"
 #include "hardware/adc.h"
 
-uint8_t last_pot_val = 0;
+uint8_t lastPotValue = 0;
 
-uint16_t adc_values[MOVING_AVG_SIZE] = {0};
+uint16_t PotValuesArray[MOVING_AVG_SIZE] = {0};
 
-uint8_t adc_values_index = 0;
+uint8_t potValuesIndex = 0;
 
 uint8_t map(uint16_t x) {
 
@@ -16,34 +17,34 @@ uint8_t map(uint16_t x) {
     return result;
 }
 
-void init_adc() {
+void init_adc(void) {
     adc_init();
     adc_gpio_init(ADC_PIN);
     adc_select_input(0);
-    }
+}
     
-void scan_adc() {
+void scan_adc(void) {
 
-    uint8_t pot_val = map(adc_read());
+    uint8_t potValue = map(adc_read());
 
-    adc_values[adc_values_index] = pot_val;
-    adc_values_index = (adc_values_index + 1) % MOVING_AVG_SIZE;
+    PotValuesArray[potValuesIndex] = potValue;
+    potValuesIndex = (potValuesIndex + 1) % MOVING_AVG_SIZE;
 
-    uint32_t adc_sum = 0;
+    uint32_t valuesSum = 0;
     for (uint8_t i = 0; i < MOVING_AVG_SIZE; i++)
     {
-        adc_sum += adc_values[i];
+        valuesSum += PotValuesArray[i];
     }
 
-    pot_val = adc_sum / MOVING_AVG_SIZE;
+    potValue = valuesSum / MOVING_AVG_SIZE;
 
-    if (pot_val - last_pot_val < -1 || pot_val - last_pot_val > 1)
+    if (potValue - lastPotValue < -1 || potValue - lastPotValue > 1)
     {
-        last_pot_val = pot_val;
+        lastPotValue = potValue;
 
-        midi_packet msg = {MIDI_CC | potChannel.value - 1, potCC.value, pot_val};
+        midi_packet Packet = {MIDI_CC | PotChannel.value - 1, PotCC.value, potValue};
 
-        bufferIn(msg);
+        buffer_in(Packet);
     }
     
 }

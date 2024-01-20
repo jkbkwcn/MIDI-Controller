@@ -7,5 +7,6 @@
 
 uint8_t map(uint16_t x);
 
-void init_adc();
-void scan_adc();
+void init_adc(void);
+
+void scan_adc(void);

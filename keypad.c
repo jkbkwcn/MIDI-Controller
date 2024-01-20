@@ -1,11 +1,12 @@
 #include "keypad.h"
-#include "midi.h"
-#include "buffer.h"
-#include "menu.h"
-#include "pwm.h"
-#include "metronome.h"
 
 #include "pico/stdlib.h"
+
+#include "midi.h"
+#include "buffer.h"
+#include "metronome.h"
+#include "pwm.h"
+
 
 const int rowPins[ROW_COUNT] = {2, 3, 4, 5};
 const int colPins[COL_COUNT] = {6, 7, 8, 9};
@@ -15,7 +16,7 @@ bool stateMatrix[ROW_COUNT][COL_COUNT] = {{0, 0, 0, 0},
                                           {0, 0, 0, 0},
                                           {0, 0, 0, 0}};
 
-void init_keypad() {
+void init_keypad(void) {
     for (uint r = 0; r < ROW_COUNT; r++) {
         gpio_init(rowPins[r]);
         gpio_set_dir(rowPins[r], GPIO_OUT);
@@ -28,36 +29,36 @@ void init_keypad() {
     }
 }
 
-void scan_keypad() {
+void scan_keypad(void) {
 
     for (uint r = 0; r < ROW_COUNT; r++) {
         gpio_put(rowPins[r], 1);
 
         for (uint c = 0; c < COL_COUNT; c++) { 
 
-            midi_packet note = {}; 
+            midi_packet Note = {}; 
 
             if (gpio_get(colPins[c]) == 1 && stateMatrix[r][c] == 0) {   
 
                 stateMatrix[r][c] = 1;
 
                 if( c != 3) {
-                    note.status = MIDI_NOTE_ON | keysChannel.value - 1;
-                    note.data1 = basePitchMatrix[r][c] + keysOffset.value + (keysOctave.value * 12);
-                    note.data2 = keysVelocity.value;
+                    Note.status = MIDI_NOTE_ON | KeysChannel.value - 1;
+                    Note.data1 = basePitchMatrix[r][c] + KeysOffset.value + (KeysOctave.value * 12);
+                    Note.data2 = KeysVelocity.value;
                 }
                 else
                 {
-                    note.status = MIDI_NOTE_ON | drumpdChannels[r]->value - 1;
-                    note.data1 = drumpdNotes[r]->value;
-                    note.data2 = drumpdVelocities[r]->value;
+                    Note.status = MIDI_NOTE_ON | drumpdChannels[r]->value - 1;
+                    Note.data1 = drumpdNotes[r]->value;
+                    Note.data2 = drumpdVelocities[r]->value;
                 }
 
 
-                if(!metronomeOn.value) 
+                if(!MetronomeOn.value) 
                     pwm_trigger();                
 
-                bufferIn(note);
+                buffer_in(Note);
             }
             
             
@@ -65,18 +66,18 @@ void scan_keypad() {
                 stateMatrix[r][c] = 0;
 
                 if( c != 3) {
-                    note.status = MIDI_NOTE_OFF | keysChannel.value - 1;
-                    note.data1 = basePitchMatrix[r][c] + keysOffset.value + (keysOctave.value * 12);
-                    note.data2 = 0x00;
+                    Note.status = MIDI_NOTE_OFF | KeysChannel.value - 1;
+                    Note.data1 = basePitchMatrix[r][c] + KeysOffset.value + (KeysOctave.value * 12);
+                    Note.data2 = 0x00;
                 }
                 else
                 {
-                    note.status = MIDI_NOTE_OFF | drumpdChannels[r]->value - 1;
-                    note.data1 = drumpdNotes[r]->value;
-                    note.data2 = 0x00;
+                    Note.status = MIDI_NOTE_OFF | drumpdChannels[r]->value - 1;
+                    Note.data1 = drumpdNotes[r]->value;
+                    Note.data2 = 0x00;
                 }
 
-                bufferIn(note);
+                buffer_in(Note);
             } 
 
         }

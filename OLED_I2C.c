@@ -266,7 +266,7 @@ void OLED_WriteString(int16_t col, int16_t page, char *str) {
     }
 }
 
-void OLED_RenderMenuPage(Page *page) {
+void OLED_RenderMenuPage(page *page) {
 
     OLED_ClearBuf();
     int line = 1;
@@ -280,7 +280,7 @@ void OLED_RenderMenuPage(Page *page) {
     OLED_Render();
 }
 
-void OLED_RenderParamPage(Page *page) {
+void OLED_RenderParamPage(page *page) {
 
     OLED_ClearBuf();
     int line = 1;
@@ -297,7 +297,7 @@ void OLED_RenderParamPage(Page *page) {
     OLED_Render();
 }
 
-void OLED_InsertCursor(Page *page) {
+void OLED_InsertCursor(page *page) {
     if (page->page.mPage.selected < 0)
         return; 
 

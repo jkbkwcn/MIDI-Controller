@@ -95,8 +95,8 @@ void OLED_WriteChar(int16_t col, int16_t page, uint8_t ch);
 
 void OLED_WriteString(int16_t col, int16_t page, char *str);
 
-void OLED_RenderMenuPage(Page *page);
+void OLED_RenderMenuPage(page *page);
 
-void OLED_RenderParamPage(Page *page);
+void OLED_RenderParamPage(page *page);
 
-void OLED_InsertCursor(Page *page);
+void OLED_InsertCursor(page *page);

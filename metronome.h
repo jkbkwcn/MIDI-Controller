@@ -1,19 +1,13 @@
 #pragma once
 
-#include "pico/stdlib.h"
-#include "hardware/timer.h"
 #include <stdint.h>
-#include "midi.h"
+#include "param.h"
 
-#define INITIAL_BPM 60
+#define INITIAL_BPM 120
 
+extern param MetronomeOn;
+extern param BPM;
 
-int32_t bpm_to_us(uint8_t bpm);
-
-extern Param metronomeOn;
-extern Param bpm;
 extern uint8_t lastBpmValue;
 
-extern struct repeating_timer metronome_timer;
-
-
+int32_t bpm_to_us(uint8_t BPM);

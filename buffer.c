@@ -2,7 +2,7 @@
 
 buffer Buffer = {{}, 0, 0, 0};
 
-bool bufferIn(midi_packet packet) {
+bool buffer_in(midi_packet packet) {
     if (Buffer.length == SIZE_OF_BUFFER) {
         return FAILURE;
     }
@@ -14,7 +14,7 @@ bool bufferIn(midi_packet packet) {
     return SUCCESS;
 }
 
-bool bufferOut(midi_packet *packet) {
+bool buffer_out(midi_packet *packet) {
     if (Buffer.length == 0) {
         return FAILURE;
     }

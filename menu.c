@@ -1,11 +1,11 @@
 #include "menu.h"
+
 #include "OLED_I2C.h"
 #include "metronome.h"
 
+page* activePage = &MainPage;
 
-Page* active_page = &MAIN_PAGE;
-
-Page INITIAL_PAGE = {
+page InitialPage = {
     .pageType = MENU_PAGE,
     .page.mPage = {
         .lines = {
@@ -21,7 +21,7 @@ Page INITIAL_PAGE = {
     }
 };
 
-Page MAIN_PAGE = {
+page MainPage = {
 	.pageType = MENU_PAGE,
     .page.mPage = {
         .lines = {
@@ -35,11 +35,11 @@ Page MAIN_PAGE = {
         .first_opt = 2,
         .last_opt = 5,
         .selected = 2,
-        .subpages = {&KEYS_PAGE, &DRUMS_PAGE, &POTS_PAGE, &METRONOMME_PAGE}
+        .subpages = {&KeysPage, &DrumsPage, &PotsPage, &MetronomePage}
     }
 };
 
-Page KEYS_PAGE = {
+page KeysPage = {
     .pageType = MENU_PAGE,
     .page.mPage = {
         .lines = {
@@ -53,11 +53,11 @@ Page KEYS_PAGE = {
         .first_opt = 2,
         .last_opt = 5,
         .selected = 2,
-        .subpages = {&KEYS_NOTES_PAGE, &KEYS_VELOCITY_PAGE, &KEYS_CHANNEL_PAGE, &MAIN_PAGE}
+        .subpages = {&KeysNotesPage, &KeysVelocityPage, &KeysChannelPage, &MainPage}
     }
 };
 
-Page KEYS_NOTES_PAGE = { 
+page KeysNotesPage = { 
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines ={
@@ -67,12 +67,12 @@ Page KEYS_NOTES_PAGE = {
         .first_opt = 0,
         .last_opt = 1,
         .selected = 0,
-        .params = {&keysOctave, &keysOffset},
-        .parentPage = &KEYS_PAGE
+        .params = {&KeysOctave, &KeysOffset},
+        .parentPage = &KeysPage
     }
 };
 
-Page KEYS_VELOCITY_PAGE = { 
+page KeysVelocityPage = { 
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines = {
@@ -81,12 +81,12 @@ Page KEYS_VELOCITY_PAGE = {
         .first_opt = 0,
         .last_opt = 0,
         .selected = 0,
-        .params = {&keysVelocity},
-        .parentPage = &KEYS_PAGE
+        .params = {&KeysVelocity},
+        .parentPage = &KeysPage
     }
 };
 
-Page KEYS_CHANNEL_PAGE = { 
+page KeysChannelPage = { 
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines ={
@@ -95,12 +95,12 @@ Page KEYS_CHANNEL_PAGE = {
         .first_opt = 0,
         .last_opt = 0,
         .selected = 0,
-        .params = {&keysChannel},
-        .parentPage = &KEYS_PAGE
+        .params = {&KeysChannel},
+        .parentPage = &KeysPage
     }
 };
 
-Page DRUMS_PAGE = {
+page DrumsPage = {
     .pageType = MENU_PAGE,
     .page.mPage = {
         .lines = {
@@ -114,11 +114,11 @@ Page DRUMS_PAGE = {
         .first_opt = 2,
         .last_opt = 5,
         .selected = 2,
-        .subpages = {&DRUMS_NOTES_PAGE, &DRUMS_VELOCITY_PAGE, &DRUMS_CHANNEL_PAGE, &MAIN_PAGE}
+        .subpages = {&DrumsNotesPage, &DrumsVelocityPage, &DrumsChannelPage, &MainPage}
     }
 };
 
-Page DRUMS_NOTES_PAGE = { 
+page DrumsNotesPage = { 
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines = {
@@ -128,12 +128,12 @@ Page DRUMS_NOTES_PAGE = {
         .first_opt = 0,
         .last_opt = 1,
         .selected = 0,
-        .params = {&drumpdNote1, &drumpdNote2},
-        .parentPage = &DRUMS_PAGE
+        .params = {&DrumpdNote1, &DrumpdNote2},
+        .parentPage = &DrumsPage
     }
 };
 
-Page DRUMS_VELOCITY_PAGE = { 
+page DrumsVelocityPage = { 
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines = {
@@ -143,12 +143,12 @@ Page DRUMS_VELOCITY_PAGE = {
         .first_opt = 0,
         .last_opt = 1,
         .selected = 0,
-        .params = {&drumpdVelocity1, &drumpdVelocity2},
-        .parentPage = &DRUMS_PAGE
+        .params = {&DrumpdVelocity1, &DrumpdVelocity2},
+        .parentPage = &DrumsPage
     }
 };
 
-Page DRUMS_CHANNEL_PAGE = { 
+page DrumsChannelPage = { 
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines = {
@@ -158,12 +158,12 @@ Page DRUMS_CHANNEL_PAGE = {
         .first_opt = 0,
         .last_opt = 1,
         .selected = 0,
-        .params = {&drumpdChannel1, &drumpdChannel2},
-        .parentPage = &DRUMS_PAGE
+        .params = {&DrumpdChannel1, &DrumpdChannel2},
+        .parentPage = &DrumsPage
     }
 };
 
-Page POTS_PAGE = {
+page PotsPage = {
     .pageType = MENU_PAGE,
     .page.mPage = {
         .lines = {
@@ -176,11 +176,11 @@ Page POTS_PAGE = {
         .first_opt = 2,
         .last_opt = 4,
         .selected = 2,
-        .subpages = {&POTS_MIDICC_PAGE, &POTS_CHANNEL_PAGE, &MAIN_PAGE}
+        .subpages = {&PotsMidiCCPage, &PotsChannelPage, &MainPage}
     }
 };
 
-Page POTS_MIDICC_PAGE = { 
+page PotsMidiCCPage = { 
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines = {
@@ -189,12 +189,12 @@ Page POTS_MIDICC_PAGE = {
         .first_opt = 0,
         .last_opt = 0,
         .selected = 0,
-        .params = {&potCC},
-        .parentPage = &POTS_PAGE
+        .params = {&PotCC},
+        .parentPage = &PotsPage
     }
 };
 
-Page POTS_CHANNEL_PAGE = { 
+page PotsChannelPage = { 
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines = {
@@ -203,12 +203,12 @@ Page POTS_CHANNEL_PAGE = {
         .first_opt = 0,
         .last_opt = 0,
         .selected = 0,
-        .params = {&potChannel},
-        .parentPage = &POTS_PAGE
+        .params = {&PotChannel},
+        .parentPage = &PotsPage
     }
 };
 
-Page METRONOMME_PAGE = { 
+page MetronomePage = { 
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines = {
@@ -218,86 +218,84 @@ Page METRONOMME_PAGE = {
         .first_opt = 0,
         .last_opt = 1,
         .selected = 0,
-        .params = {&metronomeOn, &bpm},
-        .parentPage = &MAIN_PAGE
+        .params = {&MetronomeOn, &BPM},
+        .parentPage = &MainPage
     }
 };
 
-void SwitchPressed(void) {
-    if (active_page->pageType == MENU_PAGE)
-        ChangeActivePage();
+void switch_press(void) {
+    if (activePage->pageType == MENU_PAGE)
+        change_active_page();
     else
-        EnterParam();
+        change_selected_param();
 }
 
-void EncoderMoved(bool down) {
-
-    if (active_page->pageType == MENU_PAGE)
-        ChangeSelectedPage(down);
+void encoder_move(bool down) {
+    if (activePage->pageType == MENU_PAGE)
+        change_selected_page(down);
 
     else
-        ChangeParamValue(down);
-
+        change_param_value(down);
 }
 
-void ChangeSelectedPage(bool down) {
+void change_selected_page(bool down) {
     if(down) {
-        if (active_page->page.mPage.selected == active_page->page.mPage.first_opt)
-            active_page->page.mPage.selected = active_page->page.mPage.first_opt;
+        if (activePage->page.mPage.selected == activePage->page.mPage.first_opt)
+            activePage->page.mPage.selected = activePage->page.mPage.first_opt;
         else
-            active_page->page.mPage.selected--;
+            activePage->page.mPage.selected--;
     }
 
     else {
-        if (active_page->page.mPage.selected == active_page->page.mPage.last_opt)
-            active_page->page.mPage.selected = active_page->page.mPage.last_opt;
+        if (activePage->page.mPage.selected == activePage->page.mPage.last_opt)
+            activePage->page.mPage.selected = activePage->page.mPage.last_opt;
         else
-            active_page->page.mPage.selected++;
+            activePage->page.mPage.selected++;
     }
 
-    OLED_RenderMenuPage(active_page);
+    OLED_RenderMenuPage(activePage);
 }
 
-void ChangeActivePage(void) {
-    active_page = active_page->page.mPage.subpages[active_page->page.mPage.selected - active_page->page.mPage.first_opt];
+void change_active_page(void) {
+    activePage = activePage->page.mPage.subpages[activePage->page.mPage.selected - activePage->page.mPage.first_opt];
     
-    if (active_page->pageType == MENU_PAGE) {
-        OLED_RenderMenuPage(active_page);
+    if (activePage->pageType == MENU_PAGE) {
+        OLED_RenderMenuPage(activePage);
     }
 
     else {
-        OLED_RenderParamPage(active_page);
+        OLED_RenderParamPage(activePage);
     }
 }
 
-void ChangeParamValue(bool down) {
+void change_param_value(bool down) {
 
     if (down) {
-        if (active_page->page.pPage.params[active_page->page.pPage.selected]->value > active_page->page.pPage.params[active_page->page.pPage.selected]->minValue) {
-            active_page->page.pPage.params[active_page->page.pPage.selected]->value--;
+        if (activePage->page.pPage.params[activePage->page.pPage.selected]->value > activePage->page.pPage.params[activePage->page.pPage.selected]->minValue) {
+            activePage->page.pPage.params[activePage->page.pPage.selected]->value--;
         }
     }
 
     else {
-        if (active_page->page.pPage.params[active_page->page.pPage.selected]->value < active_page->page.pPage.params[active_page->page.pPage.selected]->maxValue) {
-            active_page->page.pPage.params[active_page->page.pPage.selected]->value++;
+        if (activePage->page.pPage.params[activePage->page.pPage.selected]->value < activePage->page.pPage.params[activePage->page.pPage.selected]->maxValue) {
+            activePage->page.pPage.params[activePage->page.pPage.selected]->value++;
         }
     }
 
-    OLED_RenderParamPage(active_page);
+    OLED_RenderParamPage(activePage);
 }
 
-void EnterParam(void) {
+void change_selected_param(void) {
 
-    if (active_page->page.pPage.selected == active_page->page.pPage.last_opt) {
-        active_page->page.pPage.selected = active_page->page.pPage.first_opt;
-        active_page = active_page->page.pPage.parentPage;
-        OLED_RenderMenuPage(active_page);
+    if (activePage->page.pPage.selected == activePage->page.pPage.last_opt) {
+        activePage->page.pPage.selected = activePage->page.pPage.first_opt;
+        activePage = activePage->page.pPage.parentPage;
+        OLED_RenderMenuPage(activePage);
     }
     
     else {
-        active_page->page.pPage.selected++;
-        OLED_RenderParamPage(active_page);
+        activePage->page.pPage.selected++;
+        OLED_RenderParamPage(activePage);
     }
 
 }

@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "keypad.h"
+#include "param.h"
 
 #define MIDI_CABLE 0
 
@@ -9,40 +10,30 @@
 #define MIDI_NOTE_OFF 0x80
 #define MIDI_CC 0xB0
 
-typedef struct Param Param;
-
-struct Param {
-	uint8_t value;
-	uint8_t minValue;
-	uint8_t maxValue;
-};
-
 extern const uint8_t basePitchMatrix[ROW_COUNT][COL_COUNT];
 
-extern Param keysOctave;
-extern Param keysOffset;
-extern Param keysVelocityOn;
-extern Param keysVelocity;
-extern Param keysChannel;
+extern param KeysOctave;
+extern param KeysOffset;
+extern param KeysVelocity;
+extern param KeysChannel;
 
-extern Param drumpdNote1;
-extern Param drumpdNote2;
+extern param DrumpdNote1;
+extern param DrumpdNote2;
 
-extern Param* drumpdNotes[2];
+extern param* drumpdNotes[2];
 
-extern Param drumpdVelocity1;
-extern Param drumpdVelocity2;
+extern param DrumpdVelocity1;
+extern param DrumpdVelocity2;
 
-extern Param* drumpdVelocities[2];
+extern param* drumpdVelocities[2];
 
-extern Param drumpdChannel1;
-extern Param drumpdChannel2;
+extern param DrumpdChannel1;
+extern param DrumpdChannel2;
 
-extern Param* drumpdChannels[2];
+extern param* drumpdChannels[2];
 
-extern Param potCC;
-extern Param potChannel;
-
+extern param PotCC;
+extern param PotChannel;
 
 typedef struct {
     uint8_t status;
@@ -50,4 +41,4 @@ typedef struct {
     uint8_t data2;
 } midi_packet;
 
-void midi_task();
+void midi_task(void);

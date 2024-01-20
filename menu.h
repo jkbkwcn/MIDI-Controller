@@ -5,61 +5,67 @@
 #include <stdbool.h>
 #include "midi.h"
 
-#define MENU_PAGE 			true
-#define PARAMETER_PAGE 		false
+#define MENU_PAGE true
+#define PARAMETER_PAGE false
 
-typedef struct Page Page;
-typedef union PageU PageU;
-typedef struct MenuPage MenuPage;
-typedef struct ParamPage ParamPage;
+typedef struct menu_page menu_page;
+typedef struct param_page param_page;
+typedef union page_union page_union;
+typedef struct page page;
 
-struct MenuPage {
+
+struct menu_page {
 	char*  lines[6];
 	uint8_t first_opt;
 	uint8_t last_opt;
 	uint8_t selected;
-	Page* subpages[5];
+	page* subpages[5];
 };
 
-struct ParamPage {
+struct param_page {
 	char*  lines[6];
 	uint8_t first_opt;
 	uint8_t last_opt;
 	uint8_t selected;
-	Param* params[6];
-	Page* parentPage;
+	param* params[6];
+	page* parentPage;
 };
 
-union PageU {
-	ParamPage pPage;
-	MenuPage mPage;
+union page_union {
+	param_page pPage;
+	menu_page mPage;
 };
 
-struct Page {
+struct page {
 	bool pageType;
-	PageU page;
+	page_union page;
 };
 
-extern Page* active_page;
+extern page* activePage;
 
-extern Page INITIAL_PAGE;
-extern Page MAIN_PAGE;
-	extern Page KEYS_PAGE;
-		extern Page KEYS_NOTES_PAGE;
-		extern Page KEYS_VELOCITY_PAGE;
-		extern Page KEYS_CHANNEL_PAGE;
-	extern Page DRUMS_PAGE;
-		extern Page DRUMS_NOTES_PAGE;
-		extern Page DRUMS_VELOCITY_PAGE;
-		extern Page DRUMS_CHANNEL_PAGE;
-	extern Page POTS_PAGE;
-		extern Page POTS_MIDICC_PAGE;
-		extern Page POTS_CHANNEL_PAGE;
-	extern Page METRONOMME_PAGE;
+extern page InitialPage;
+extern page MainPage;
+	extern page KeysPage;
+		extern page KeysNotesPage;
+		extern page KeysVelocityPage;
+		extern page KeysChannelPage;
+	extern page DrumsPage;
+		extern page DrumsNotesPage;
+		extern page DrumsVelocityPage;
+		extern page DrumsChannelPage;
+	extern page PotsPage;
+		extern page PotsMidiCCPage;
+		extern page PotsChannelPage;
+	extern page MetronomePage;
 
-void SwitchPressed(void);
-void EncoderMoved(bool down);
-void ChangeSelectedPage(bool down);
-void ChangeActivePage(void);
-void ChangeParamValue(bool down);
-void EnterParam(void);
+void switch_press(void);
+
+void encoder_move(bool down);
+
+void change_selected_page(bool down);
+
+void change_active_page(void);
+
+void change_param_value(bool down);
+
+void change_selected_param(void);

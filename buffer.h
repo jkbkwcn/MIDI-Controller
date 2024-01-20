@@ -15,5 +15,6 @@ typedef struct {
     int length;
 } buffer;
 
-bool bufferIn(midi_packet packet);
-bool bufferOut(midi_packet *packet);
+bool buffer_in(midi_packet packet);
+
+bool buffer_out(midi_packet *packet);

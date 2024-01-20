@@ -22,6 +22,8 @@ if (TARGET tinyusb_device)
                 keypad.c
                 midi.c
                 usb_descriptors.c
+                pwm.c
+                metronome.c
                 )
 
         target_include_directories(OLED_SH1106_I2C PRIVATE ${CMAKE_CURRENT_LIST_DIR})
@@ -34,6 +36,8 @@ if (TARGET tinyusb_device)
                 hardware_i2c
                 hardware_adc
                 hardware_timer
+                hardware_pwm
+                hardware_irq
                 )
 
         # enable usb output, disable uart output

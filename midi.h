@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdint.h>
+#include "keypad.h"
+
 #define MIDI_CABLE 0
 
 #define MIDI_NOTE_ON 0x90
@@ -15,7 +17,10 @@ struct Param {
 	uint8_t maxValue;
 };
 
-extern Param octave;
+extern const uint8_t basePitchMatrix[ROW_COUNT][COL_COUNT];
+
+extern Param keysOctave;
+extern Param keysOffset;
 extern Param keysVelocityOn;
 extern Param keysVelocity;
 extern Param keysChannel;

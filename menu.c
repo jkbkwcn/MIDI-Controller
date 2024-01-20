@@ -1,5 +1,7 @@
 #include "menu.h"
 #include "OLED_I2C.h"
+#include "metronome.h"
+
 
 Page* active_page = &MAIN_PAGE;
 
@@ -27,12 +29,13 @@ Page MAIN_PAGE = {
 		"               ",
 		" Keys          ",
 		" Drumpads      ",
-		" Pots          "
+		" Pots          ",
+        " Metronomme    "
         },
         .first_opt = 2,
-        .last_opt = 4,
+        .last_opt = 5,
         .selected = 2,
-        .subpages = {&KEYS_PAGE, &DRUMS_PAGE, &POTS_PAGE, &MAIN_PAGE}
+        .subpages = {&KEYS_PAGE, &DRUMS_PAGE, &POTS_PAGE, &METRONOMME_PAGE}
     }
 };
 
@@ -42,7 +45,7 @@ Page KEYS_PAGE = {
         .lines = {
         "     KEYS      ",
         "               ",
-        " Octave        ",    
+        " Notes         ",    
         " Velocity      ",
         " MIDI Channel  ",
         " Back          ",
@@ -50,20 +53,21 @@ Page KEYS_PAGE = {
         .first_opt = 2,
         .last_opt = 5,
         .selected = 2,
-        .subpages = {&OCTAVE_PAGE, &KEYS_VELOCITY_PAGE, &KEYS_CHANNEL_PAGE, &MAIN_PAGE}
+        .subpages = {&KEYS_NOTES_PAGE, &KEYS_VELOCITY_PAGE, &KEYS_CHANNEL_PAGE, &MAIN_PAGE}
     }
 };
 
-Page OCTAVE_PAGE = { 
+Page KEYS_NOTES_PAGE = { 
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines ={
-            " Octave        ", 
+            " Octave        ",
+            " Base note     " 
         },
         .first_opt = 0,
-        .last_opt = 0,
+        .last_opt = 1,
         .selected = 0,
-        .params = {&octave},
+        .params = {&keysOctave, &keysOffset},
         .parentPage = &KEYS_PAGE
     }
 };
@@ -72,13 +76,12 @@ Page KEYS_VELOCITY_PAGE = {
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines = {
-            " VALUE         ",
-            " MODE          "
+            " VALUE         "
         },
         .first_opt = 0,
-        .last_opt = 1,
+        .last_opt = 0,
         .selected = 0,
-        .params = {&keysVelocity, &keysVelocityOn},
+        .params = {&keysVelocity},
         .parentPage = &KEYS_PAGE
     }
 };
@@ -111,11 +114,11 @@ Page DRUMS_PAGE = {
         .first_opt = 2,
         .last_opt = 5,
         .selected = 2,
-        .subpages = {&DRUMS_MAP_PAGE, &DRUMS_VELOCITY_PAGE, &DRUMS_CHANNEL_PAGE, &MAIN_PAGE}
+        .subpages = {&DRUMS_NOTES_PAGE, &DRUMS_VELOCITY_PAGE, &DRUMS_CHANNEL_PAGE, &MAIN_PAGE}
     }
 };
 
-Page DRUMS_MAP_PAGE = { 
+Page DRUMS_NOTES_PAGE = { 
     .pageType = PARAMETER_PAGE,
     .page.pPage = {
         .lines = {
@@ -202,6 +205,21 @@ Page POTS_CHANNEL_PAGE = {
         .selected = 0,
         .params = {&potChannel},
         .parentPage = &POTS_PAGE
+    }
+};
+
+Page METRONOMME_PAGE = { 
+    .pageType = PARAMETER_PAGE,
+    .page.pPage = {
+        .lines = {
+            " ON            ",
+            " BPM           "
+        },
+        .first_opt = 0,
+        .last_opt = 1,
+        .selected = 0,
+        .params = {&metronomeOn, &bpm},
+        .parentPage = &MAIN_PAGE
     }
 };
 

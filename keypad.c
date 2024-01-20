@@ -2,16 +2,13 @@
 #include "midi.h"
 #include "buffer.h"
 #include "menu.h"
+#include "pwm.h"
+#include "metronome.h"
 
 #include "pico/stdlib.h"
 
 const int rowPins[ROW_COUNT] = {2, 3, 4, 5};
 const int colPins[COL_COUNT] = {6, 7, 8, 9};
-
-const uint8_t basePitchMatrix[ROW_COUNT][COL_COUNT] = {{24, 26, 28, 0},
-                                                   {29, 31, 33, 0},
-                                                   {35, 36, 38, 0},
-                                                   {40, 41, 43, 0}};
 
 bool stateMatrix[ROW_COUNT][COL_COUNT] = {{0, 0, 0, 0},
                                           {0, 0, 0, 0},
@@ -46,7 +43,7 @@ void scan_keypad() {
 
                 if( c != 3) {
                     note.status = MIDI_NOTE_ON | keysChannel.value - 1;
-                    note.data1 = basePitchMatrix[r][c] + (octave.value * 12);
+                    note.data1 = basePitchMatrix[r][c] + keysOffset.value + (keysOctave.value * 12);
                     note.data2 = keysVelocity.value;
                 }
                 else
@@ -55,6 +52,10 @@ void scan_keypad() {
                     note.data1 = drumpdNotes[r]->value;
                     note.data2 = drumpdVelocities[r]->value;
                 }
+
+
+                if(!metronomeOn.value) 
+                    pwm_trigger();                
 
                 bufferIn(note);
             }
@@ -65,7 +66,7 @@ void scan_keypad() {
 
                 if( c != 3) {
                     note.status = MIDI_NOTE_OFF | keysChannel.value - 1;
-                    note.data1 = basePitchMatrix[r][c] + (octave.value * 12);
+                    note.data1 = basePitchMatrix[r][c] + keysOffset.value + (keysOctave.value * 12);
                     note.data2 = 0x00;
                 }
                 else

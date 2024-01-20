@@ -2,7 +2,13 @@
 #include "buffer.h"
 #include "tusb.h"
 
-Param octave = {3, 0, 9};
+const uint8_t basePitchMatrix[ROW_COUNT][COL_COUNT] = {{35, 34, 33, 0},
+                                                   {32, 31, 30, 0},
+                                                   {29, 28, 27, 0},
+                                                   {26, 25, 24, 0}};
+
+Param keysOctave = {3, 0, 9};
+Param keysOffset = {0, 0, 11};
 Param keysVelocityOn = {1, 0, 1};
 Param keysVelocity = {127, 0, 127};
 Param keysChannel = {1, 1, 16};

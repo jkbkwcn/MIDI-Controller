@@ -9,18 +9,22 @@
 #include "OLED_I2C.h"
 #include "menu.h"
 #include "encoder.h"
-#include "hardware/timer.h"
 #include "keypad.h"
 #include "midi.h"
 #include "buffer.h"
 #include "adc.h"
-
-
+#include "pwm.h"
+#include "metronome.h"
 
 volatile bool led_state = false;
+
 volatile bool sw_flag = false;
 volatile bool en_flag = false;
 volatile bool en_direction;
+
+volatile bool metronomeFlag = false;
+volatile bool bpmFlag = false;
+
 
 bool timer_callback(struct repeating_timer *t) {
 
@@ -30,6 +34,11 @@ bool timer_callback(struct repeating_timer *t) {
     scan_keypad();
     scan_adc();
 
+    return true;
+}
+
+bool metronome_callback(struct repeating_timer *t) {
+    pwm_trigger();
     return true;
 }
 
@@ -54,6 +63,28 @@ void en_task() {
     EncoderMoved(en_direction);
 }
 
+void metronome_task() {
+    if (metronomeOn.value && metronomeFlag == 0)
+    {
+        add_repeating_timer_us(bpm_to_us(bpm.value), metronome_callback, NULL, &metronome_timer);
+        pwm_set_clkdiv(pwm_gpio_to_slice_num(PWM_PIN), 2.f);
+        metronomeFlag = 1;
+    }
+
+    if (!metronomeOn.value && metronomeFlag == 1) {
+        cancel_repeating_timer(&metronome_timer);
+        pwm_set_clkdiv(pwm_gpio_to_slice_num(PWM_PIN), 6.f);
+        metronomeFlag = 0;
+    }
+
+    if (metronomeOn.value && (lastBpmValue != bpm.value))
+    {
+        cancel_repeating_timer(&metronome_timer);
+        add_repeating_timer_us(bpm_to_us(bpm.value), metronome_callback, NULL, &metronome_timer);
+        lastBpmValue = bpm.value;
+    }
+}
+
 int main() {
 
     board_init();
@@ -67,6 +98,7 @@ int main() {
 
     init_keypad();
     init_adc();
+    init_pwm();
 
     OLED_RenderMenuPage(&INITIAL_PAGE);
 
@@ -86,6 +118,8 @@ int main() {
         if (sw_flag) sw_task();
 
         if (en_flag) en_task();
+
+        metronome_task();
         
         midi_task();
     }

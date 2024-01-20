@@ -9,9 +9,9 @@ uint16_t adc_values[MOVING_AVG_SIZE] = {0};
 
 uint8_t adc_values_index = 0;
 
-int map(int x) {
+uint8_t map(uint16_t x) {
 
-    int result = x / 32;
+    uint8_t result = x / 32;
 
     return result;
 }
@@ -37,7 +37,7 @@ void scan_adc() {
 
     pot_val = adc_sum / MOVING_AVG_SIZE;
 
-    if (pot_val != last_pot_val)
+    if (pot_val - last_pot_val < -1 || pot_val - last_pot_val > 1)
     {
         last_pot_val = pot_val;
 

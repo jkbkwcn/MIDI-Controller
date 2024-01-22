@@ -95,17 +95,17 @@ int main() {
     stdio_init_all();
     tusb_init();
 
-    OLED_Init();
+    OLED_init();
     init_encoder();
     init_keypad();
     init_adc();
     init_pwm();
 
-    OLED_RenderMenuPage(&InitialPage);
+    OLED_render_menu_page(&InitialPage);
 
     sleep_ms(2000);
 
-    OLED_RenderMenuPage(&MainPage);
+    OLED_render_menu_page(&MainPage);
 
     gpio_set_irq_enabled_with_callback(SWITCH_PIN, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
     gpio_set_irq_enabled_with_callback(ENCODER_PIN_A, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);

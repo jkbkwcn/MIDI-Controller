@@ -11,14 +11,8 @@
 #define OLED_WIDTH               128
 
 #define OLED_I2C_ADDR            _u(0x3C)
-
-// 400 is usual, but often these can be overclocked to improve display response.
-// Tested at 1000 on both 32 and 84 pixel height devices and it worked.
-// #define OLED_I2C_CLK             400
 #define OLED_I2C_CLK             400*1000
 
-
-// commands (see datasheet)
 #define OLED_OFF        		   0xAE
 #define OLED_ON         		   0xAF
 
@@ -40,7 +34,7 @@
 #define OLED_CLOCKDIV           0xD5
 #define OLED_SETMULTIPLEX       0xA8
 
-#define OLED_CHARGEPUMP         0xAD		// 0x8D
+#define OLED_CHARGEPUMP         0xAD		
 #define OLED_ADDRESSING_MODE    0x20
 #define OLED_VERTICAL           0x01
 #define OLED_HORIZONTAL         0x00
@@ -71,32 +65,32 @@ void OLED_send_cmd_list(uint8_t *buf, int num);
 
 void OLED_send_buf(uint8_t buf[]);
 
-void OLED_Init(void);
+void OLED_init(void);
 
-void OLED_ClearBuf(void);
+void OLED_clear_buf(void);
 
 void OLED_flash(void);
 
-void OLED_Render(void);
+void OLED_render(void);
 
 void OLED_clear(void);
 
 void OLED_draw_rect(void);
 
-void OLED_SetPixel(int col, int page, bool on);
+void OLED_set_pixel(int col, int page, bool on);
 
-int OLED_GetFontIndex(uint8_t ch);
+int OLED_get_font_index(uint8_t ch);
 
 uint8_t OLED_reverse(uint8_t b);
 
-void OLED_FillReversedCache(void);
+void OLED_fill_reversed_cache(void);
 
-void OLED_WriteChar(int16_t col, int16_t page, uint8_t ch);
+void OLED_write_char(int16_t col, int16_t page, uint8_t ch);
 
-void OLED_WriteString(int16_t col, int16_t page, char *str);
+void OLED_write_string(int16_t col, int16_t page, char *str);
 
-void OLED_RenderMenuPage(page *page);
+void OLED_render_menu_page(page *page);
 
-void OLED_RenderParamPage(page *page);
+void OLED_render_param_page(page *page);
 
-void OLED_InsertCursor(page *page);
+void OLED_insert_cursor(page *page);

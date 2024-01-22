@@ -253,18 +253,18 @@ void change_selected_page(bool down) {
             activePage->page.mPage.selected++;
     }
 
-    OLED_RenderMenuPage(activePage);
+    OLED_render_menu_page(activePage);
 }
 
 void change_active_page(void) {
     activePage = activePage->page.mPage.subpages[activePage->page.mPage.selected - activePage->page.mPage.first_opt];
     
     if (activePage->pageType == MENU_PAGE) {
-        OLED_RenderMenuPage(activePage);
+        OLED_render_menu_page(activePage);
     }
 
     else {
-        OLED_RenderParamPage(activePage);
+        OLED_render_param_page(activePage);
     }
 }
 
@@ -282,7 +282,7 @@ void change_param_value(bool down) {
         }
     }
 
-    OLED_RenderParamPage(activePage);
+    OLED_render_param_page(activePage);
 }
 
 void change_selected_param(void) {
@@ -290,12 +290,12 @@ void change_selected_param(void) {
     if (activePage->page.pPage.selected == activePage->page.pPage.last_opt) {
         activePage->page.pPage.selected = activePage->page.pPage.first_opt;
         activePage = activePage->page.pPage.parentPage;
-        OLED_RenderMenuPage(activePage);
+        OLED_render_menu_page(activePage);
     }
     
     else {
         activePage->page.pPage.selected++;
-        OLED_RenderParamPage(activePage);
+        OLED_render_param_page(activePage);
     }
 
 }
